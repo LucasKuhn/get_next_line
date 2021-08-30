@@ -13,10 +13,16 @@ char *get_line_from_static_buffer(char **saved_buffer, int fd)
 	len = 0;
 	while (str[len] && str[len] != '\n')
 		len++;
-	line = malloc(sizeof(*str) * ++len);
+	line = malloc(sizeof(char) * ++len + 1);
 	if (!line)
 		return (NULL);
 	ft_memcpy(line, str, len);
+	line[len] = '\0';
+	if (*(saved_buffer[fd] + (len - 1)) == 0) // If it reached the end
+	{
+		saved_buffer[fd] = 0;
+		return (line);
+	}
 	temp = ft_strdup(saved_buffer[fd] + len);
 	free(saved_buffer[fd]);
 	saved_buffer[fd] = temp;
@@ -37,10 +43,12 @@ char *get_next_line(int fd)
 		return (get_line_from_static_buffer(saved_buffer, fd));
 	while ( (bytes_read = read(fd, read_buffer, BUFFER_SIZE)) > 0 )
 	{
+		read_buffer[bytes_read] = 0;
 		if (saved_buffer[fd])
 		{
 			temp = ft_strjoin(saved_buffer[fd], read_buffer);
 			free(saved_buffer[fd]);
+			saved_buffer[fd] = 0;
 			saved_buffer[fd] = temp;
 		}
 		else
@@ -58,15 +66,18 @@ int main()
 	printf("BUFFER_SIZE=%d\n\n", BUFFER_SIZE);
 
 	int fd_1 = open("numbers", O_RDONLY);
-	printf("GNL: %s", get_next_line(fd_1));
+
 	printf("GNL: %s", get_next_line(fd_1));
 	printf("GNL: %s", get_next_line(fd_1));
 
-	// int fd_2 = open("song", O_RDONLY);
-	// printf("GNL: %s", get_next_line(fd_2));
-	// printf("GNL: %s", get_next_line(fd_2));
-
+	printf("GNL: %s", get_next_line(fd_1));
+	printf("GNL: %s", get_next_line(fd_1));
+	printf("GNL: %s", get_next_line(fd_1));
 	close(fd_1);
-	// close(fd_2);
+
+	int fd_2 = open("song", O_RDONLY);
+	printf("GNL: %s", get_next_line(fd_2));
+	printf("GNL: %s", get_next_line(fd_2));
+	close(fd_2);
 }
 
