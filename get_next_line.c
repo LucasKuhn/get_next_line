@@ -6,26 +6,26 @@ char *get_line_from_static_buffer(char **saved_buffer, int fd)
 {
 	size_t	len;
 	char	*line;
-	char	*str;
 	char	*temp;
 
-	str = saved_buffer[fd];	
+	if (!saved_buffer[fd])
+		return (NULL);
 	len = 0;
-	while (str[len] && str[len] != '\n')
+	while (saved_buffer[fd][len] && saved_buffer[fd][len] != '\n')
 		len++;
 	line = malloc(sizeof(char) * ++len + 1);
 	if (!line)
 		return (NULL);
-	ft_memcpy(line, str, len);
+	ft_memcpy(line, saved_buffer[fd], len);
 	line[len] = '\0';
-	if (*(saved_buffer[fd] + (len - 1)) == 0) // If it reached the end
-	{
+	if (*(saved_buffer[fd] + (len - 1)) == '\0')
 		saved_buffer[fd] = 0;
-		return (line);
+	else
+	{
+		temp = ft_strdup(saved_buffer[fd] + len);
+		free(saved_buffer[fd]);
+		saved_buffer[fd] = temp;
 	}
-	temp = ft_strdup(saved_buffer[fd] + len);
-	free(saved_buffer[fd]);
-	saved_buffer[fd] = temp;
 	return (line);
 }
 
@@ -48,7 +48,6 @@ char *get_next_line(int fd)
 		{
 			temp = ft_strjoin(saved_buffer[fd], read_buffer);
 			free(saved_buffer[fd]);
-			saved_buffer[fd] = 0;
 			saved_buffer[fd] = temp;
 		}
 		else
@@ -69,15 +68,17 @@ int main()
 
 	printf("GNL: %s", get_next_line(fd_1));
 	printf("GNL: %s", get_next_line(fd_1));
-
 	printf("GNL: %s", get_next_line(fd_1));
 	printf("GNL: %s", get_next_line(fd_1));
 	printf("GNL: %s", get_next_line(fd_1));
-	close(fd_1);
+	printf("GNL: %s", get_next_line(fd_1));
 
 	int fd_2 = open("song", O_RDONLY);
+	printf("\n--File 2--\n");
 	printf("GNL: %s", get_next_line(fd_2));
 	printf("GNL: %s", get_next_line(fd_2));
+
+	close(fd_1);
 	close(fd_2);
 }
 
