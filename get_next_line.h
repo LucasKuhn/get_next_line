@@ -18,6 +18,5 @@ char	*ft_strchr(const char *s, int c);
 
 // Function
 char *get_next_line(int fd);
-char *get_line_from_static_buffer(char **saved_buffer, int fd);
 
 # endif
